@@ -8,14 +8,56 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="css/index.css" />
+    <link rel="stylesheet" href="css/toast.css" />
+    <link rel="stylesheet" href="css/zoom.css" />
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+      integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
 
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hachura</title>
   </head>
   <body>
-    <h1>IMAGEM</h1>
-    <div id="image-container"></div>
+    <header>
+      <h1>Hachura</h1>
+      <button id="edit-button">Editar Hachura</button>
+      <button id="reset-zoom" style="margin-top: 10px">Resetar Zoom</button>
+    </header>
+    <main>
+      <div id="image-container">
+        <img id="zoom-image" src="" alt="Imagem do documento" />
+      </div>
+    </main>
+    <footer>
+      <div class="navigation">
+        <button id="prev-ten-button">
+          <i class="fas fa-chevron-left"></i>
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        <button id="prev-button">
+          <i class="fas fa-chevron-left"></i>
+          Anterior
+        </button>
+        <div id="wrapper-number-pages">
+          <div id="total-pages"></div>
+        </div>
+        <button id="next-button">
+          Próximo <i class="fas fa-chevron-right"></i>
+        </button>
+        <button id="next-ten-button">
+          <i class="fas fa-chevron-right"></i>
+          <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </footer>
+
     <script src="js/getImages.js"></script>
+    <script src="js/zoom.js"></script>
   </body>
 </html>

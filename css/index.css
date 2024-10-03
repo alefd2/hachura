@@ -4,40 +4,110 @@
   box-sizing: border-box;
 }
 
+:root {
+  --primary-color: #27415c;
+  --button-color: #1e4875;
+  --button-color-hover: #021830bd;
+  --button-color-active: #03060abd;
+  --text-color: #f0f0f0;
+  --bg-color: #dadada;
+  --bg-2-color: #4d637abd;
+}
+
 body {
-  font-family: "Ubuntu", Arial, sans-serif;
-  background-color: #f4f4f4;
-  color: #333;
-  line-height: 1.6;
-  min-height: 100vh;
+  font-family: "Ubuntu", sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--bg-color);
+  height: 100vh;
+}
+
+header {
+  background-color: var(--primary-color);
+  color: white;
+  height: 100px;
+  padding: 20px 160px;
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-direction: column;
+  gap: 30px;
 }
 
 h1 {
-  font-size: 2rem;
-  margin-bottom: 20px;
+  margin: 0;
+}
+
+button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #218838;
+}
+
+main {
+  /* margin-top: 20px; */
+  text-align: center;
+  height: 100%;
+  width: 100%;
+}
+
+footer {
+  height: 80px;
+  width: 100%;
+  background-color: var(--primary-color);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #image-container {
-  background-color: #fff;
-  border: 1px solid #ddd;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  text-align: center;
+  /* margin: 20px; */
 }
 
-#image-container img {
-  max-width: 100%;
-  height: auto;
-  border-radius: 8px;
+.navigation {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
 }
 
-#image-container::before {
-  content: "Carregando imagem...";
-  font-size: 1.2rem;
-  color: #777;
+.navigation button {
+  background-color: var(--button-color);
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.navigation button:hover {
+  background-color: var(--button-color-hover);
+}
+
+.navigation button:active {
+  background-color: var(--button-color-active);
+}
+
+#wrapper-number-pages {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background-color: var(--bg-color);
+  border-radius: 6px;
+  border: 1px solid var(--primary-color);
+}
+
+#wrapper-number-pages #total-pages {
+  color: var(--primary-color);
 }

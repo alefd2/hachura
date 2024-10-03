@@ -1,0 +1,38 @@
+/* ======= IMAGES =========== */
+#image-container {
+  width: 100%;
+  height: 80vh;
+  overflow: hidden;
+  position: relative;
+  border: 2px solid #ccc;
+  cursor: grab;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#image-container img {
+  display: flex;
+  align-items: center;
+  margin: 0 auto;
+}
+
+#zoom-image {
+  max-width: 100%; /* Define um limite máximo de largura */
+  max-height: none; /* Permite que a altura seja controlada pelo zoom */
+  object-fit: contain;
+  transition: transform 0.1s cubic-bezier(0.075, 0.82, 0.165, 1);
+  transform-origin: center center;
+}
+
+#image-container.grabbing {
+  cursor: grabbing;
+}
+
+#zoom-image {
+  width: 100%;
+  height: auto;
+  transform-origin: center;
+  transition: transform 0.2s ease;
+  position: absolute;
+}
