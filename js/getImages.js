@@ -81,14 +81,14 @@ async function contructImageInScrem() {
 
 // Função para renderizar hachuras no documento
 function renderShowHachuras() {
-  const container = document.getElementById("hachura-container"); // Substitua pelo ID real
+  const container = document.getElementById("hachura-container");
   if (!container) {
+    showToast("Elemento hachura não encontrado", TypeError.ERROR);
     console.error("Elemento 'hachura-container' não encontrado.");
     return;
   }
 
-  // O resto do seu código para renderizar hachuras
-  container.innerHTML = ""; // Limpa o container
+  container.innerHTML = "";
 
   hachuras.forEach((hachura) => {
     const hachuraElement = document.createElement("div");
@@ -102,7 +102,6 @@ function renderShowHachuras() {
   });
 }
 
-// Função para salvar hachuras no localStorage
 function saveHachuras() {
   const data = JSON.parse(localStorage.getItem("documentData")) || {
     pages: [],
@@ -118,7 +117,6 @@ function saveHachuras() {
   localStorage.setItem("documentData", JSON.stringify(data));
 }
 
-// Função para carregar hachuras ao iniciar
 function loadHachuras() {
   const data = JSON.parse(localStorage.getItem("documentData")) || {
     pages: [],
@@ -126,9 +124,9 @@ function loadHachuras() {
   const pageData = data.pages.find((p) => p.id === page);
 
   if (pageData) {
-    hachuras.length = 0; // Limpa array atual de hachuras
-    hachuras.push(...pageData.hachuras); // Carrega hachuras da página atual
-    renderShowHachuras(); // Renderiza as hachuras na tela
+    hachuras.length = 0;
+    hachuras.push(...pageData.hachuras);
+    renderShowHachuras();
   }
 }
 
@@ -146,51 +144,76 @@ function addHachura(x, y) {
 }
 
 // Configurar botão de edição de hachuras
-document.getElementById("edit-button").addEventListener("click", () => {
-  const editButton = document.getElementById("edit-button");
+const editButton = document.getElementById("edit-button");
+
+editButton.addEventListener("click", () => {
+  const img = document.getElementById("zoom-image");
 
   if (editButton.innerText === "Editar Hachura") {
     editButton.style.backgroundColor = "red";
     editButton.innerText = "Salvar Hachura";
 
-    const img = document.getElementById("zoom-image");
-    img.style.pointerEvents = "none";
-
-    // Adicionar eventos de mouse para desenhar a hachura
     img.addEventListener("mousedown", startDrawing);
     img.addEventListener("mousemove", draw);
     img.addEventListener("mouseup", stopDrawing);
+    img.addEventListener("mouseleave", stopDrawing);
   } else {
     editButton.style.backgroundColor = "";
     editButton.innerText = "Editar Hachura";
-    const img = document.getElementById("zoom-image");
-    img.style.pointerEvents = "auto";
-
-    // Remover eventos de mouse após salvar
+    resetZoomAndDragEvents(false);
     img.removeEventListener("mousedown", startDrawing);
     img.removeEventListener("mousemove", draw);
     img.removeEventListener("mouseup", stopDrawing);
+    img.removeEventListener("mouseleave", stopDrawing);
   }
 });
 
 /**
- * DRAW HACHURA
+ * ====== DRAW HACHURA
  */
 
 function startDrawing(event) {
+  const img = document.getElementById("zoom-image");
+  const rect = img.getBoundingClientRect();
+
+  // Verifica se o mouse está dentro da imagem
+  if (
+    event.clientX < rect.left ||
+    event.clientX > rect.right ||
+    event.clientY < rect.top ||
+    event.clientY > rect.bottom
+  ) {
+    return;
+  }
+
   isDrawing = true;
   startX = event.offsetX;
   startY = event.offsetY;
 
+  // Cria o elemento de hachura e adiciona ao container
   hachuraElement = document.createElement("div");
   hachuraElement.style.position = "absolute";
   hachuraElement.style.border = "1px solid red";
   hachuraElement.style.pointerEvents = "none";
+  hachuraElement.style.backgroundColor = "rgba(190, 15, 15, 0.3)";
   document.getElementById("image-container").appendChild(hachuraElement);
 }
 
 function draw(event) {
   if (!isDrawing) return;
+
+  const img = document.getElementById("zoom-image");
+  const rect = img.getBoundingClientRect();
+
+  // Verifica se o mouse está dentro da imagem
+  if (
+    event.clientX < rect.left ||
+    event.clientX > rect.right ||
+    event.clientY < rect.top ||
+    event.clientY > rect.bottom
+  ) {
+    return;
+  }
 
   const currentX = event.offsetX;
   const currentY = event.offsetY;
@@ -207,20 +230,20 @@ function draw(event) {
 }
 
 function stopDrawing() {
+  if (!isDrawing) return;
+
   isDrawing = false;
 
-  // Captura as coordenadas finais e chama a função addHachura ao salvar
+  // Captura as coordenadas finais ao parar de desenhar
   const img = document.getElementById("zoom-image");
   const rect = hachuraElement.getBoundingClientRect();
 
   const hachuraX = rect.left - img.getBoundingClientRect().left; // X relativo à imagem
   const hachuraY = rect.top - img.getBoundingClientRect().top; // Y relativo à imagem
 
-  // Se o botão salvar for clicado, adiciona a hachura
-  document.getElementById("edit-button").addEventListener("click", () => {
-    addHachura(hachuraX, hachuraY);
-    document.getElementById("image-container").removeChild(hachuraElement); // Remove o retângulo após salvar
-  });
+  // Adiciona a hachura ao finalizar o desenho
+  addHachura(hachuraX, hachuraY);
+  document.getElementById("image-container").removeChild(hachuraElement); // Remove o retângulo após salvar
 }
 
 /**
@@ -258,14 +281,13 @@ function showToast(message, type = "ERROR") {
 
   toastContent.className += " show";
 
-  // remover toast in screem
+  // remover toast em screem
   setTimeout(() => {
-    toast.className = toast.className.replace("show", "");
+    toastContent.className = toastContent.className.replace("show", "");
   }, 5000);
 }
 
 // =========== NAVIGATION PAGE
-
 document.getElementById("prev-button").addEventListener("click", () => {
   if (page > 1) {
     page--;

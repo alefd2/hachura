@@ -11,8 +11,28 @@ document.addEventListener("DOMContentLoaded", function () {
   const maxZoom = 1.8;
   const minZoom = 0.98;
 
+  let enableZoomAndDrag = true;
+
+  function toggleZoomAndDrag(enabled) {
+    enableZoomAndDrag = enabled;
+
+    if (enableZoomAndDrag) {
+      container.addEventListener("wheel", zoom);
+      container.addEventListener("mousedown", startDrag);
+      container.addEventListener("mousemove", drag);
+      container.addEventListener("mouseup", endDrag);
+      container.addEventListener("mouseleave", endDrag);
+    } else {
+      container.removeEventListener("wheel", zoom);
+      container.removeEventListener("mousedown", startDrag);
+      container.removeEventListener("mousemove", drag);
+      container.removeEventListener("mouseup", endDrag);
+      container.removeEventListener("mouseleave", endDrag);
+    }
+  }
+
   function zoom(e) {
-    // Verifica se o mouse está sobre a imagem
+    if (!enableZoomAndDrag) return; // Check if zoom is enabled
     const rect = img.getBoundingClientRect();
     if (
       e.clientX < rect.left ||
@@ -37,10 +57,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
-    // Atualiza a transformação da imagem
-    // img.style.transformOrigin = `50% ${offsetY}px`;
     img.style.transform = `scale(${scale}) translateY(${translateY}px)`;
-
     checkBounds();
   }
 
@@ -48,19 +65,15 @@ document.addEventListener("DOMContentLoaded", function () {
     const imgRect = img.getBoundingClientRect();
     const containerRect = container.getBoundingClientRect();
 
-    // Limite superior: A parte superior da imagem não pode ultrapassar a parte superior do contêiner
     const minTranslateY = containerRect.top - imgRect.top;
-
-    // Limite inferior: A parte inferior da imagem não pode ultrapassar a parte inferior do contêiner
     const maxTranslateY = containerRect.bottom - imgRect.bottom;
 
-    // Limitar translateY com base nos limites definidos
     translateY = Math.max(maxTranslateY, Math.min(translateY, minTranslateY));
-
     img.style.transform = `scale(${scale}) translateY(${translateY}px)`;
   }
 
   function startDrag(e) {
+    if (!enableZoomAndDrag) return; // Check if drag is enabled
     const rect = img.getBoundingClientRect();
     if (
       e.clientX < rect.left ||
@@ -74,35 +87,13 @@ document.addEventListener("DOMContentLoaded", function () {
     isDragging = true;
     startY = e.clientY - translateY;
     container.classList.add("grabbing");
-
-    e.preventDefault();
-  }
-
-  function startDrag(e) {
-    // Verifica se o mouse está sobre a imagem
-    const rect = img.getBoundingClientRect();
-    if (
-      e.clientX < rect.left ||
-      e.clientX > rect.right ||
-      e.clientY < rect.top ||
-      e.clientY > rect.bottom
-    ) {
-      return;
-    }
-
-    isDragging = true;
-    startY = e.clientY - translateY; // Ajusta a posição inicial
-    container.classList.add("grabbing");
-
     e.preventDefault();
   }
 
   function drag(e) {
-    if (isDragging) {
-      translateY = e.clientY - startY;
-      img.style.transform = `scale(${scale}) translateY(${translateY}px)`;
-      // checkBounds();
-    }
+    if (!isDragging) return;
+    translateY = e.clientY - startY;
+    img.style.transform = `scale(${scale}) translateY(${translateY}px)`;
   }
 
   function endDrag() {
@@ -110,9 +101,13 @@ document.addEventListener("DOMContentLoaded", function () {
     container.classList.remove("grabbing");
   }
 
-  container.addEventListener("wheel", zoom);
-  container.addEventListener("mousedown", startDrag);
-  container.addEventListener("mousemove", drag);
-  container.addEventListener("mouseup", endDrag);
-  container.addEventListener("mouseleave", endDrag);
+  toggleZoomAndDrag(true);
+
+  document.getElementById("edit-button").addEventListener("click", () => {
+    if (enableZoomAndDrag) {
+      toggleZoomAndDrag(false);
+    } else {
+      toggleZoomAndDrag(true);
+    }
+  });
 });
