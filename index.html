@@ -36,6 +36,12 @@
         <div id="hachura-container"></div>
       </div>
     </main>
+
+    <div id="toast">
+      <span id="toast-icon" class="toast-icon"></span>
+      <span id="toast-message"></span>
+    </div>
+
     <footer>
       <div class="navigation">
         <button id="prev-ten-button">
@@ -59,8 +65,25 @@
       </div>
     </footer>
 
+    <script>
+      function showToast(message) {
+        const toast = document.createElement("div");
+        toast.className = "toast";
+        toast.textContent = message;
+
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+          toast.style.opacity = "0";
+        }, 3000);
+
+        toast.addEventListener("transitionend", () => {
+          document.body.removeChild(toast);
+        });
+      }
+    </script>
+
     <script src="js/getImages.js"></script>
     <script src="js/zoom.js"></script>
-    <script src="js/hachura.js"></script>
   </body>
 </html>

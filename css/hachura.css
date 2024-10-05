@@ -8,8 +8,8 @@
 
 .hachura {
   position: absolute;
-  width: 100px; /* Largura da hachura */
-  height: 100px; /* Altura da hachura */
+  width: 100px;
+  height: 100px;
   background: repeating-linear-gradient(
     45deg,
     rgba(0, 0, 0, 0.2) 0,
@@ -21,14 +21,14 @@
 }
 
 #hachura-container {
-  position: absolute; /* Hachuras devem ser posicionadas absolutamente */
+  position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  pointer-events: none; /* Para evitar que o contêiner interfira com os eventos de mouse da imagem */
+  pointer-events: none;
 }
 
 #hachura-container div {
-  pointer-events: all; /* Permite que as hachuras sejam clicáveis se necessário */
+  pointer-events: all;
 }
