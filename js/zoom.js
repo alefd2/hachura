@@ -7,9 +7,9 @@ document.addEventListener("DOMContentLoaded", function () {
   let startY = 0;
   let translateY = 0;
 
-  const zoomStep = 0.1;
+  const zoomStep = 0.08;
   const maxZoom = 1.8;
-  const minZoom = 0.8;
+  const minZoom = 0.98;
 
   function zoom(e) {
     // Verifica se o mouse está sobre a imagem
@@ -58,6 +58,24 @@ document.addEventListener("DOMContentLoaded", function () {
     translateY = Math.max(maxTranslateY, Math.min(translateY, minTranslateY));
 
     img.style.transform = `scale(${scale}) translateY(${translateY}px)`;
+  }
+
+  function startDrag(e) {
+    const rect = img.getBoundingClientRect();
+    if (
+      e.clientX < rect.left ||
+      e.clientX > rect.right ||
+      e.clientY < rect.top ||
+      e.clientY > rect.bottom
+    ) {
+      return;
+    }
+
+    isDragging = true;
+    startY = e.clientY - translateY;
+    container.classList.add("grabbing");
+
+    e.preventDefault();
   }
 
   function startDrag(e) {

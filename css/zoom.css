@@ -18,10 +18,10 @@
 }
 
 #zoom-image {
-  max-width: 100%; /* Define um limite máximo de largura */
-  max-height: none; /* Permite que a altura seja controlada pelo zoom */
+  max-width: 100%;
+  max-height: none;
   object-fit: contain;
-  transition: transform 0.1s cubic-bezier(0.075, 0.82, 0.165, 1);
+  transition: transform 0.08s cubic-bezier(0.075, 0.82, 0.165, 1);
   transform-origin: center center;
 }
 
