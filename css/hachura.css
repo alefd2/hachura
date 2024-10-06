@@ -17,7 +17,6 @@
     rgba(255, 255, 255, 0.2) 10px,
     rgba(255, 255, 255, 0.2) 20px
   );
-  cursor: pointer;
 }
 
 #hachura-container {
@@ -31,10 +30,6 @@
 
 #hachura-container div {
   pointer-events: all;
-  border-radius: 8px;
-  cursor: pointer;
-
-  transition: 0.6s cubic-bezier(0.075, 0.82, 0.165, 1);
 }
 
 #hachura-container div:hover {

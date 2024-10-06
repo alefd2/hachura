@@ -9,6 +9,8 @@ let hachuraWidth;
 let hachuraHeight;
 
 let isDrawing = false;
+let isEdit = false;
+
 let startX, startY;
 let hachuraElement = null;
 
@@ -149,15 +151,25 @@ async function saveHachuras() {
   }
 
   localStorage.setItem("documentData", JSON.stringify(data));
+  isEdit = false;
 }
 
 const editButton = document.getElementById("edit-button");
 editButton.addEventListener("click", async () => {
   const img = document.getElementById("image");
+  const hachuraContainer = document.getElementById("hachura-container");
 
   if (editButton.innerText === "Editar Hachura" && !isDrawing) {
     editButton.style.backgroundColor = "red";
     editButton.innerText = "Salvar Hachura";
+
+    // Desativar eventos nas hachuras existentes durante a edição
+    const hachurasExistentes = document.querySelectorAll(
+      "#hachura-container div"
+    );
+    hachurasExistentes.forEach((hachura) => {
+      hachura.style.pointerEvents = "none";
+    });
 
     img.addEventListener("mousedown", startDrawing);
     img.addEventListener("mousemove", draw);
@@ -167,7 +179,15 @@ editButton.addEventListener("click", async () => {
     editButton.style.backgroundColor = "";
     editButton.innerText = "Editar Hachura";
 
+    // Salvar hachuras e reativar os eventos de mouse nas hachuras
     await saveHachuras();
+
+    const hachurasExistentes = document.querySelectorAll(
+      "#hachura-container div"
+    );
+    hachurasExistentes.forEach((hachura) => {
+      hachura.style.pointerEvents = "auto"; // Reativar os eventos de mouse
+    });
 
     img.removeEventListener("mousedown", startDrawing);
     img.removeEventListener("mousemove", draw);
@@ -184,26 +204,43 @@ function startDrawing(event) {
   const img = document.getElementById("wrapper-image");
   const rect = img.getBoundingClientRect();
 
-  if (
-    event.clientX < rect.left ||
-    event.clientX > rect.right ||
-    event.clientY < rect.top ||
-    event.clientY > rect.bottom
-  ) {
-    return;
-  }
+  // Desabilitar eventos de mouse em todas as hachuras
+  const hachurasExistentes = document.querySelectorAll(
+    "#hachura-container div"
+  );
+  hachurasExistentes.forEach((hachura) => {
+    hachura.style.pointerEvents = "none";
+  });
 
   isDrawing = true;
-  startX = event.offsetX;
-  startY = event.offsetY;
+  isEdit = true;
+
+  startX = event.clientX - rect.left;
+  startY = event.clientY - rect.top;
 
   hachuraElement = document.createElement("div");
   hachuraElement.style.position = "absolute";
   hachuraElement.style.border = "1px solid red";
-  hachuraElement.style.pointerEvents = "none";
+  hachuraElement.style.pointerEvents = "none"; // Garante que a nova hachura não interrompa o evento de mouse
   hachuraElement.style.backgroundColor = "rgba(190, 15, 15, 0.3)";
+  hachuraElement.style.zIndex = hachuras.length + 1;
 
   document.getElementById("hachura-container").appendChild(hachuraElement);
+}
+
+function stopDrawing() {
+  if (!isDrawing) return;
+  isDrawing = false;
+
+  // Reativar eventos de mouse nas hachuras existentes após o desenho
+  const hachurasExistentes = document.querySelectorAll(
+    "#hachura-container div"
+  );
+  hachurasExistentes.forEach((hachura) => {
+    hachura.style.pointerEvents = "auto";
+  });
+
+  addHachura();
 }
 
 function draw(event) {
@@ -213,14 +250,14 @@ function draw(event) {
   const img = document.getElementById("image");
   const containerRect = hachuraContainer.getBoundingClientRect();
 
-  if (
-    event.clientX < containerRect.left ||
-    event.clientX > containerRect.right ||
-    event.clientY < containerRect.top ||
-    event.clientY > containerRect.bottom
-  ) {
-    return;
-  }
+  // if (
+  //   event.clientX < containerRect.left ||
+  //   event.clientX > containerRect.right ||
+  //   event.clientY < containerRect.top ||
+  //   event.clientY > containerRect.bottom
+  // ) {
+  //   return;
+  // }
 
   const currentX = event.clientX - containerRect.left;
   const currentY = event.clientY - containerRect.top;
@@ -301,14 +338,14 @@ function showToast(message, type = "ERROR") {
 
 // =========== NAVIGATION PAGE ======
 document.getElementById("prev-button").addEventListener("click", () => {
-  if (page > 1) {
+  if (page > 1 && !isDrawing && !isEdit) {
     page--;
     mainImages();
   }
 });
 
 document.getElementById("prev-ten-button").addEventListener("click", () => {
-  if (page > 10) {
+  if (page > 10 && !isDrawing && !isEdit) {
     page -= 10;
   } else {
     page = 1;
@@ -317,11 +354,19 @@ document.getElementById("prev-ten-button").addEventListener("click", () => {
 });
 
 document.getElementById("next-button").addEventListener("click", () => {
-  page++;
-  mainImages();
+  if (!isDrawing && !isEdit) {
+    page++;
+    mainImages();
+    return;
+  }
+  showToast("Termine a sua edição", TypeError.ERROR);
 });
 
 document.getElementById("next-ten-button").addEventListener("click", () => {
-  page += 10;
-  mainImages();
+  if (!isDrawing && !isEdit) {
+    page += 10;
+    mainImages();
+    return;
+  }
+  showToast("Termine a sua edição", TypeError.ERROR);
 });

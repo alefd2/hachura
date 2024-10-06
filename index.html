@@ -87,6 +87,11 @@
           document.body.removeChild(toast);
         });
       }
+
+      const image = document.getElementById("image");
+      image.addEventListener("dragstart", function (event) {
+        event.preventDefault();
+      });
     </script>
 
     <script src="js/getImages.js"></script>

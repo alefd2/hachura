@@ -21,9 +21,10 @@
   max-width: 100%;
   max-height: none;
   object-fit: contain;
-  transition: transform 0.08s cubic-bezier(0.075, 0.82, 0.165, 1);
+  transition: transform 0.01s cubic-bezier(0.075, 0.82, 0.165, 1);
   transform-origin: center center;
 }
+
 #wrapper-image.grabbing {
   cursor: grabbing;
 }
