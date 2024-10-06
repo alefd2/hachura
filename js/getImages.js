@@ -3,7 +3,7 @@ const url = "https://api-hachuraservi1.websiteseguro.com/api/document";
 let totalPages = 0;
 let hachuras = [];
 
-let hachuraId;
+let hachuraId = Date.now();
 let hachuraX;
 let hachuraY;
 let hachuraWidth;
@@ -116,20 +116,30 @@ function renderShowHatches() {
   const container = document.getElementById("hachura-container");
   container.innerHTML = "";
 
-  hachuras.forEach((hachura) => {
+  // Adicionar o índice do array no forEach
+  hachuras.forEach((hachura, index) => {
     const hachuraElement = document.createElement("div");
     hachuraElement.style.position = "absolute";
-    hachuraElement.id = hachuraElement.style.width = `${hachura.size.width}px`;
+    hachuraElement.id = hachura.id; // Usar o ID da hachura corretamente
+    hachuraElement.style.width = `${hachura.size.width}px`;
     hachuraElement.style.height = `${hachura.size.height}px`;
     hachuraElement.style.backgroundColor = hachura.color;
     hachuraElement.style.top = `${hachura.position.top}px`;
     hachuraElement.style.left = `${hachura.position.left}px`;
+
+    // Passar o índice corretamente para a função de remoção
+    hachuraElement.addEventListener("mousedown", (event) => {
+      if (event.button === 2 || event.button === 1) {
+        removeHatch(index);
+        event.preventDefault();
+      }
+    });
+
     container.appendChild(hachuraElement);
   });
 }
 
 function addHatches() {
-  hachuraId = Date.now();
   const currentHachura = {
     id: hachuraId,
     position: { top: parseFloat(hachuraY), left: parseFloat(hachuraX) },
@@ -158,7 +168,11 @@ async function saveHatches() {
   isEdit = false;
 }
 
-async function removeHacth(params) {}
+function removeHatch(index) {
+  hachuras.splice(index, 1);
+  renderShowHatches();
+  saveHatches();
+}
 
 const editButton = document.getElementById("edit-button");
 editButton.addEventListener("click", async () => {
@@ -232,7 +246,6 @@ function startDrawing(event) {
   document.getElementById("hachura-container").appendChild(hachuraElement);
 }
 
-hachuraId;
 function draw(event) {
   if (!isDrawing) return;
 
