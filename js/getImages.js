@@ -105,18 +105,16 @@ function loadHatches() {
     hachuras.length = 0;
     hachuras.push(...pageData.hachuras);
     renderShowHatches();
-    return;
   }
 
-  hachuras = [];
-  renderShowHatches();
+  // Configurar a remoção de hachuras após o carregamento
+  setupHatchRemoval();
 }
 
 function renderShowHatches() {
   const container = document.getElementById("hachura-container");
   container.innerHTML = "";
 
-  // Adicionar o índice do array no forEach
   hachuras.forEach((hachura, index) => {
     const hachuraElement = document.createElement("div");
     hachuraElement.style.position = "absolute";
@@ -127,9 +125,9 @@ function renderShowHatches() {
     hachuraElement.style.top = `${hachura.position.top}px`;
     hachuraElement.style.left = `${hachura.position.left}px`;
 
-    // Passar o índice corretamente para a função de remoção
+    // Adicionar listener para remoção, mas apenas para hachuras existentes
     hachuraElement.addEventListener("mousedown", (event) => {
-      if (event.button === 2 || event.button === 1) {
+      if (!isEdit && (event.button === 2 || event.button === 1)) {
         removeHatch(index);
         event.preventDefault();
       }
@@ -138,7 +136,6 @@ function renderShowHatches() {
     container.appendChild(hachuraElement);
   });
 }
-
 function addHatches() {
   const currentHachura = {
     id: hachuraId,
@@ -168,6 +165,20 @@ async function saveHatches() {
   isEdit = false;
 }
 
+function setupHatchRemoval() {
+  const container = document.getElementById("hachura-container");
+  container.addEventListener("mousedown", (event) => {
+    if (event.button === 2 || event.button === 1) {
+      const target = event.target;
+      if (target && target.parentNode === container) {
+        const index = Array.from(container.children).indexOf(target);
+        removeHatch(index);
+        event.preventDefault();
+      }
+    }
+  });
+}
+
 function removeHatch(index) {
   hachuras.splice(index, 1);
   renderShowHatches();
@@ -177,7 +188,6 @@ function removeHatch(index) {
 const editButton = document.getElementById("edit-button");
 editButton.addEventListener("click", async () => {
   const img = document.getElementById("image");
-  const hachuraContainer = document.getElementById("hachura-container");
 
   if (editButton.innerText === "Editar Hachura" && !isDrawing) {
     editButton.style.backgroundColor = "red";
