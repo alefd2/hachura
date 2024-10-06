@@ -3,6 +3,7 @@ const url = "https://api-hachuraservi1.websiteseguro.com/api/document";
 let totalPages = 0;
 let hachuras = [];
 
+let hachuraId;
 let hachuraX;
 let hachuraY;
 let hachuraWidth;
@@ -23,6 +24,8 @@ const TypeStatus = {
   START: "START",
   STOP: "STOP",
 };
+
+// ======================
 
 async function fetchImagesBase64(url, page) {
   try {
@@ -79,7 +82,7 @@ async function contructImageInScrem() {
       const totalPageElement = document.getElementById("total-pages");
       totalPageElement.innerText = `${page}/${totalPages}`;
 
-      loadHachuras();
+      loadHatches();
     } else {
       showToast("Erro ao recuperar a imagem!", TypeError.ERROR);
     }
@@ -92,7 +95,7 @@ async function contructImageInScrem() {
   }
 }
 
-function loadHachuras() {
+function loadHatches() {
   const data = JSON.parse(localStorage.getItem("documentData")) || {
     pages: [],
   };
@@ -101,22 +104,22 @@ function loadHachuras() {
   if (pageData) {
     hachuras.length = 0;
     hachuras.push(...pageData.hachuras);
-    renderShowHachuras();
+    renderShowHatches();
     return;
   }
 
   hachuras = [];
-  renderShowHachuras();
+  renderShowHatches();
 }
 
-function renderShowHachuras() {
+function renderShowHatches() {
   const container = document.getElementById("hachura-container");
   container.innerHTML = "";
 
   hachuras.forEach((hachura) => {
     const hachuraElement = document.createElement("div");
     hachuraElement.style.position = "absolute";
-    hachuraElement.style.width = `${hachura.size.width}px`;
+    hachuraElement.id = hachuraElement.style.width = `${hachura.size.width}px`;
     hachuraElement.style.height = `${hachura.size.height}px`;
     hachuraElement.style.backgroundColor = hachura.color;
     hachuraElement.style.top = `${hachura.position.top}px`;
@@ -125,9 +128,10 @@ function renderShowHachuras() {
   });
 }
 
-function addHachura() {
+function addHatches() {
+  hachuraId = Date.now();
   const currentHachura = {
-    id: Date.now(),
+    id: hachuraId,
     position: { top: parseFloat(hachuraY), left: parseFloat(hachuraX) },
     size: {
       width: parseFloat(hachuraWidth),
@@ -138,7 +142,7 @@ function addHachura() {
   hachuras.push(currentHachura);
 }
 
-async function saveHachuras() {
+async function saveHatches() {
   const data = JSON.parse(localStorage.getItem("documentData")) || {
     pages: [],
   };
@@ -154,6 +158,8 @@ async function saveHachuras() {
   isEdit = false;
 }
 
+async function removeHacth(params) {}
+
 const editButton = document.getElementById("edit-button");
 editButton.addEventListener("click", async () => {
   const img = document.getElementById("image");
@@ -163,7 +169,6 @@ editButton.addEventListener("click", async () => {
     editButton.style.backgroundColor = "red";
     editButton.innerText = "Salvar Hachura";
 
-    // Desativar eventos nas hachuras existentes durante a edição
     const hachurasExistentes = document.querySelectorAll(
       "#hachura-container div"
     );
@@ -179,14 +184,13 @@ editButton.addEventListener("click", async () => {
     editButton.style.backgroundColor = "";
     editButton.innerText = "Editar Hachura";
 
-    // Salvar hachuras e reativar os eventos de mouse nas hachuras
-    await saveHachuras();
+    await saveHatches();
 
     const hachurasExistentes = document.querySelectorAll(
       "#hachura-container div"
     );
     hachurasExistentes.forEach((hachura) => {
-      hachura.style.pointerEvents = "auto"; // Reativar os eventos de mouse
+      hachura.style.pointerEvents = "auto";
     });
 
     img.removeEventListener("mousedown", startDrawing);
@@ -228,21 +232,7 @@ function startDrawing(event) {
   document.getElementById("hachura-container").appendChild(hachuraElement);
 }
 
-function stopDrawing() {
-  if (!isDrawing) return;
-  isDrawing = false;
-
-  // Reativar eventos de mouse nas hachuras existentes após o desenho
-  const hachurasExistentes = document.querySelectorAll(
-    "#hachura-container div"
-  );
-  hachurasExistentes.forEach((hachura) => {
-    hachura.style.pointerEvents = "auto";
-  });
-
-  addHachura();
-}
-
+hachuraId;
 function draw(event) {
   if (!isDrawing) return;
 
@@ -250,14 +240,14 @@ function draw(event) {
   const img = document.getElementById("image");
   const containerRect = hachuraContainer.getBoundingClientRect();
 
-  // if (
-  //   event.clientX < containerRect.left ||
-  //   event.clientX > containerRect.right ||
-  //   event.clientY < containerRect.top ||
-  //   event.clientY > containerRect.bottom
-  // ) {
-  //   return;
-  // }
+  if (
+    event.clientX < containerRect.left ||
+    event.clientX > containerRect.right ||
+    event.clientY < containerRect.top ||
+    event.clientY > containerRect.bottom
+  ) {
+    return;
+  }
 
   const currentX = event.clientX - containerRect.left;
   const currentY = event.clientY - containerRect.top;
@@ -279,8 +269,15 @@ function draw(event) {
 function stopDrawing() {
   if (!isDrawing) return;
   isDrawing = false;
-  addHachura();
-  // document.getElementById("hachura-container").removeChild(hachuraElement);
+
+  const hachurasExistentes = document.querySelectorAll(
+    "#hachura-container div"
+  );
+  hachurasExistentes.forEach((hachura) => {
+    hachura.style.pointerEvents = "auto";
+  });
+
+  addHatches();
 }
 
 /**
