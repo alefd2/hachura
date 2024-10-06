@@ -5,16 +5,16 @@
   overflow: hidden;
   position: relative;
   border: 2px solid #ccc;
-  cursor: grab;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-#image-container img {
+#wrapper-image img {
   display: flex;
   align-items: center;
   margin: 0 auto;
+  cursor: grab;
 }
 
 #zoom-image {
@@ -24,9 +24,12 @@
   transition: transform 0.08s cubic-bezier(0.075, 0.82, 0.165, 1);
   transform-origin: center center;
 }
-
-#image-container.grabbing {
+#wrapper-image.grabbing {
   cursor: grabbing;
+}
+
+#wrapper-image {
+  transform: scale(1) translateY(0px);
 }
 
 #zoom-image {

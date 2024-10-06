@@ -22,7 +22,6 @@ const TypeStatus = {
   STOP: "STOP",
 };
 
-// Função para buscar imagens base64
 async function fetchImagesBase64(url, page) {
   try {
     const headers = new Headers({
@@ -58,7 +57,6 @@ async function fetchImagesBase64(url, page) {
   }
 }
 
-// Função para construir a imagem na tela e carregar as hachuras
 async function contructImageInScrem() {
   showLoading(TypeStatus.START);
   try {
@@ -109,7 +107,6 @@ function loadHachuras() {
   renderShowHachuras();
 }
 
-// Função para renderizar hachuras no documento
 function renderShowHachuras() {
   const container = document.getElementById("hachura-container");
   container.innerHTML = "";
@@ -126,7 +123,6 @@ function renderShowHachuras() {
   });
 }
 
-// Função para adicionar hachuras
 function addHachura() {
   const currentHachura = {
     id: Date.now(),
@@ -137,10 +133,7 @@ function addHachura() {
     },
     color: "rgba(190, 15, 15, 0.3)",
   };
-
   hachuras.push(currentHachura);
-
-  // saveHachuras();
 }
 
 async function saveHachuras() {
@@ -152,13 +145,12 @@ async function saveHachuras() {
   if (!pageData) {
     data.pages.push({ id: page, img: "", hachuras });
   } else {
-    pageData.hachuras = hachuras; // Atualiza as hachuras para a página atual
+    pageData.hachuras = hachuras;
   }
 
-  localStorage.setItem("documentData", JSON.stringify(data)); // Salva no localStorage
+  localStorage.setItem("documentData", JSON.stringify(data));
 }
 
-// Configurar botão de edição de hachuras
 const editButton = document.getElementById("edit-button");
 editButton.addEventListener("click", async () => {
   const img = document.getElementById("image");
@@ -192,7 +184,6 @@ function startDrawing(event) {
   const img = document.getElementById("wrapper-image");
   const rect = img.getBoundingClientRect();
 
-  // Verifica se o mouse está dentro da imagem
   if (
     event.clientX < rect.left ||
     event.clientX > rect.right ||
@@ -206,7 +197,6 @@ function startDrawing(event) {
   startX = event.offsetX;
   startY = event.offsetY;
 
-  // Cria o elemento de hachura e adiciona ao container
   hachuraElement = document.createElement("div");
   hachuraElement.style.position = "absolute";
   hachuraElement.style.border = "1px solid red";
@@ -223,7 +213,6 @@ function draw(event) {
   const img = document.getElementById("image");
   const containerRect = hachuraContainer.getBoundingClientRect();
 
-  // Verifica se o mouse está dentro da imagem
   if (
     event.clientX < containerRect.left ||
     event.clientX > containerRect.right ||
@@ -233,11 +222,9 @@ function draw(event) {
     return;
   }
 
-  // Calcula a posição relativa à imagem
   const currentX = event.clientX - containerRect.left;
   const currentY = event.clientY - containerRect.top;
 
-  // Calcula a largura e altura do retângulo
   const width = currentX - startX;
   const height = currentY - startY;
 
@@ -246,7 +233,6 @@ function draw(event) {
   hachuraWidth = `${Math.abs(width)}px`;
   hachuraHeight = `${Math.abs(height)}px`;
 
-  // // Atualiza a posição e tamanho do retângulo
   hachuraElement.style.left = hachuraX;
   hachuraElement.style.top = hachuraY;
   hachuraElement.style.width = hachuraWidth;

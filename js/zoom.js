@@ -86,7 +86,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     isDragging = true;
     startY = e.clientY - translateY;
-    container.classList.add("grabbing");
+    img.classList.add("grabbing");
     e.preventDefault();
   }
 
@@ -98,7 +98,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function endDrag() {
     isDragging = false;
-    container.classList.remove("grabbing");
+    img.classList.remove("grabbing");
   }
 
   toggleZoomAndDrag(true);
