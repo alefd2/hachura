@@ -13,6 +13,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   let enableZoomAndDrag = true;
 
+  let enabledZoom = true;
+  let anabledrag = true;
+
   function toggleZoomAndDrag(enabled) {
     enableZoomAndDrag = enabled;
 
@@ -32,8 +35,8 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function zoom(e) {
-    if (!enableZoomAndDrag) return; // Check if zoom is enabled
     const rect = img.getBoundingClientRect();
+
     if (
       e.clientX < rect.left ||
       e.clientX > rect.right ||
@@ -44,6 +47,16 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     e.preventDefault();
+
+    if (scale >= maxZoom && e.deltaY < 0) {
+      enableZoomAndDrag = false;
+      return;
+    } else if (scale <= minZoom && e.deltaY > 0) {
+      enableZoomAndDrag = false;
+      return;
+    } else {
+      enableZoomAndDrag = true;
+    }
 
     const offsetY = e.clientY - rect.top;
 
@@ -73,7 +86,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function startDrag(e) {
-    if (!enableZoomAndDrag) return; // Check if drag is enabled
+    if (!enableZoomAndDrag) return;
     const rect = img.getBoundingClientRect();
     if (
       e.clientX < rect.left ||

@@ -107,7 +107,6 @@ function loadHatches() {
     renderShowHatches();
   }
 
-  // Configurar a remoção de hachuras após o carregamento
   setupHatchRemoval();
 }
 
@@ -118,14 +117,13 @@ function renderShowHatches() {
   hachuras.forEach((hachura, index) => {
     const hachuraElement = document.createElement("div");
     hachuraElement.style.position = "absolute";
-    hachuraElement.id = hachura.id; // Usar o ID da hachura corretamente
+    hachuraElement.id = hachura.id;
     hachuraElement.style.width = `${hachura.size.width}px`;
     hachuraElement.style.height = `${hachura.size.height}px`;
     hachuraElement.style.backgroundColor = hachura.color;
     hachuraElement.style.top = `${hachura.position.top}px`;
     hachuraElement.style.left = `${hachura.position.left}px`;
 
-    // Adicionar listener para remoção, mas apenas para hachuras existentes
     hachuraElement.addEventListener("mousedown", (event) => {
       if (!isEdit && (event.button === 2 || event.button === 1)) {
         removeHatch(index);
@@ -136,6 +134,7 @@ function renderShowHatches() {
     container.appendChild(hachuraElement);
   });
 }
+
 function addHatches() {
   const currentHachura = {
     id: hachuraId,
@@ -232,7 +231,6 @@ function startDrawing(event) {
   const img = document.getElementById("wrapper-image");
   const rect = img.getBoundingClientRect();
 
-  // Desabilitar eventos de mouse em todas as hachuras
   const hachurasExistentes = document.querySelectorAll(
     "#hachura-container div"
   );
@@ -249,7 +247,7 @@ function startDrawing(event) {
   hachuraElement = document.createElement("div");
   hachuraElement.style.position = "absolute";
   hachuraElement.style.border = "1px solid red";
-  hachuraElement.style.pointerEvents = "none"; // Garante que a nova hachura não interrompa o evento de mouse
+  hachuraElement.style.pointerEvents = "none";
   hachuraElement.style.backgroundColor = "rgba(190, 15, 15, 0.3)";
   hachuraElement.style.zIndex = hachuras.length + 1;
 

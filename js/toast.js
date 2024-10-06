@@ -5,12 +5,10 @@ export function showToast(message) {
 
   document.body.appendChild(toast);
 
-  // Mostra o toast
   setTimeout(() => {
     toast.classList.add("show");
   }, 100);
 
-  // Remove o toast após 3 segundos
   setTimeout(() => {
     toast.classList.remove("show");
     document.body.removeChild(toast);
