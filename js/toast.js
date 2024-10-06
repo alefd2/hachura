@@ -1,4 +1,4 @@
-export function showToast(message) {
+export const showToast = (message) => {
   const toast = document.createElement("div");
   toast.className = "toast";
   toast.textContent = message;
@@ -13,4 +13,4 @@ export function showToast(message) {
     toast.classList.remove("show");
     document.body.removeChild(toast);
   }, 3000);
-}
+};

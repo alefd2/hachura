@@ -1,93 +1,80 @@
 document.addEventListener("DOMContentLoaded", function () {
-  const img = document.getElementById("wrapper-image");
+  const wrapperImage = document.getElementById("wrapper-image");
+  const img = document.getElementById("image");
   const container = document.getElementById("image-container");
 
   let scale = 1;
   let isDragging = false;
   let startY = 0;
-  let translateY = 0;
+  let translateX = 0,
+    translateY = 0;
 
   const zoomStep = 0.08;
-  const maxZoom = 1.8;
-  const minZoom = 0.98;
+  const maxZoom = 2.8;
+  const minZoom = 0.7;
 
   let enableZoomAndDrag = true;
 
-  let enabledZoom = true;
-  let anabledrag = true;
-
-  function toggleZoomAndDrag(enabled) {
+  const toggleDrag = (enabled) => {
     enableZoomAndDrag = enabled;
 
     if (enableZoomAndDrag) {
-      container.addEventListener("wheel", zoom);
-      container.addEventListener("mousedown", startDrag);
-      container.addEventListener("mousemove", drag);
-      container.addEventListener("mouseup", endDrag);
-      container.addEventListener("mouseleave", endDrag);
+      img.addEventListener("mousedown", startDrag);
+      img.addEventListener("mousemove", drag);
+      img.addEventListener("mouseup", endDrag);
+      img.addEventListener("mouseleave", endDrag);
     } else {
-      container.removeEventListener("wheel", zoom);
-      container.removeEventListener("mousedown", startDrag);
-      container.removeEventListener("mousemove", drag);
-      container.removeEventListener("mouseup", endDrag);
-      container.removeEventListener("mouseleave", endDrag);
+      img.removeEventListener("mousedown", startDrag);
+      img.removeEventListener("mousemove", drag);
+      img.removeEventListener("mouseup", endDrag);
+      img.removeEventListener("mouseleave", endDrag);
     }
-  }
+  };
 
-  function zoom(e) {
-    const rect = img.getBoundingClientRect();
+  const toggleZoomAndDrag = (enabled) => {
+    enableZoomAndDrag = enabled;
 
-    if (
-      e.clientX < rect.left ||
-      e.clientX > rect.right ||
-      e.clientY < rect.top ||
-      e.clientY > rect.bottom
-    ) {
-      return;
+    if (enableZoomAndDrag) {
+      img.addEventListener("wheel", zoom);
+      img.addEventListener("mousedown", startDrag);
+      img.addEventListener("mousemove", drag);
+      img.addEventListener("mouseup", endDrag);
+      img.addEventListener("mouseleave", endDrag);
+    } else {
+      img.removeEventListener("wheel", zoom);
+      img.removeEventListener("mousedown", startDrag);
+      img.removeEventListener("mousemove", drag);
+      img.removeEventListener("mouseup", endDrag);
+      img.removeEventListener("mouseleave", endDrag);
     }
+  };
 
+  const zoom = (e) => {
     e.preventDefault();
 
+    // Define o tamanho máximo e mínimo do zoom
     if (scale >= maxZoom && e.deltaY < 0) {
-      enableZoomAndDrag = false;
       return;
     } else if (scale <= minZoom && e.deltaY > 0) {
-      enableZoomAndDrag = false;
       return;
     } else {
-      enableZoomAndDrag = true;
     }
 
-    const offsetY = e.clientY - rect.top;
+    // Definir a quantidade de zoom
+    const zoomAmount = e.deltaY > 0 ? 0.9 : 1.1;
+    scale *= zoomAmount;
 
-    if (e.deltaY < 0) {
-      if (scale < maxZoom) {
-        scale += zoomStep;
-      }
-    } else {
-      if (scale > minZoom) {
-        scale -= zoomStep;
-      }
-    }
+    // Ajustar a origem do zoom para o centro
+    originX = 0.5;
+    originY = 0.5;
 
-    img.style.transform = `scale(${scale}) translateY(${translateY}px)`;
-    checkBounds();
-  }
+    wrapperImage.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+    wrapperImage.style.transformOrigin = `${originX * 100}% ${originY * 100}%`;
+  };
 
-  function checkBounds() {
-    const imgRect = img.getBoundingClientRect();
-    const containerRect = container.getBoundingClientRect();
-
-    const minTranslateY = containerRect.top - imgRect.top;
-    const maxTranslateY = containerRect.bottom - imgRect.bottom;
-
-    translateY = Math.max(maxTranslateY, Math.min(translateY, minTranslateY));
-    img.style.transform = `scale(${scale}) translateY(${translateY}px)`;
-  }
-
-  function startDrag(e) {
+  const startDrag = (e) => {
     if (!enableZoomAndDrag) return;
-    const rect = img.getBoundingClientRect();
+    const rect = wrapperImage.getBoundingClientRect();
     if (
       e.clientX < rect.left ||
       e.clientX > rect.right ||
@@ -101,26 +88,31 @@ document.addEventListener("DOMContentLoaded", function () {
     startY = e.clientY - translateY;
     img.classList.add("grabbing");
     e.preventDefault();
-  }
+  };
 
-  function drag(e) {
+  const drag = (e) => {
     if (!isDragging) return;
     translateY = e.clientY - startY;
-    img.style.transform = `scale(${scale}) translateY(${translateY}px)`;
-  }
 
-  function endDrag() {
+    originX = 0.5;
+    originY = 0.5;
+    wrapperImage.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+    img.style.transformOrigin = `${originX * 100}% ${originY * 100}%`;
+  };
+
+  const endDrag = () => {
     isDragging = false;
     img.classList.remove("grabbing");
-  }
+  };
 
   toggleZoomAndDrag(true);
 
   document.getElementById("edit-button").addEventListener("click", () => {
     if (enableZoomAndDrag) {
-      toggleZoomAndDrag(false);
+      toggleDrag(false);
     } else {
       toggleZoomAndDrag(true);
+      toggleDrag(true);
     }
   });
 });

@@ -49,6 +49,8 @@ async function fetchImagesBase64(url, page) {
       const _totalPages = response.headers.get("total_page");
       totalPages = _totalPages || 0;
 
+      // console.log(totalPages);
+
       return { data, totalPages: _totalPages };
     } else {
       console.error("Erro ao recuperar imagens");
@@ -76,6 +78,8 @@ async function contructImageInScrem() {
       img.style.width = "auto";
       img.style.transition = "transform 0.3s ease";
       img.style.transformOrigin = "center center";
+      img.style.boxShadow = "0 4px 22px rgba(0, 0, 0, 0.4)";
+      img.style.borderRadius = "5px";
 
       // container.innerHTML = "";
 
@@ -228,8 +232,9 @@ editButton.addEventListener("click", async () => {
  */
 
 function startDrawing(event) {
-  const img = document.getElementById("wrapper-image");
-  const rect = img.getBoundingClientRect();
+  const wrapperImage = document.getElementById("wrapper-image");
+  const container = document.getElementById("image-container");
+  const rect = wrapperImage.getBoundingClientRect();
 
   const hachurasExistentes = document.querySelectorAll(
     "#hachura-container div"
@@ -241,8 +246,14 @@ function startDrawing(event) {
   isDrawing = true;
   isEdit = true;
 
-  startX = event.clientX - rect.left;
-  startY = event.clientY - rect.top;
+  // Ajuste as coordenadas do mouse com base na escala da imagem
+  const translateY = 0;
+
+  const computedStyle = getComputedStyle(wrapperImage);
+  const scale = parseFloat(computedStyle.transform.match(/matrix\(([^,]*)/)[1]);
+
+  startX = (event.clientX - rect.left) / scale;
+  startY = (event.clientY - rect.top) / scale;
 
   hachuraElement = document.createElement("div");
   hachuraElement.style.position = "absolute";
@@ -251,16 +262,20 @@ function startDrawing(event) {
   hachuraElement.style.backgroundColor = "rgba(190, 15, 15, 0.3)";
   hachuraElement.style.zIndex = hachuras.length + 1;
 
+  // Define a posição inicial da hachura
+  hachuraElement.style.left = `${startX}px`;
+  hachuraElement.style.top = `${startY}px`;
+
   document.getElementById("hachura-container").appendChild(hachuraElement);
 }
 
 function draw(event) {
   if (!isDrawing) return;
 
-  const hachuraContainer = document.getElementById("wrapper-image");
-  const img = document.getElementById("image");
-  const containerRect = hachuraContainer.getBoundingClientRect();
+  const wrapperImage = document.getElementById("wrapper-image");
+  const containerRect = wrapperImage.getBoundingClientRect();
 
+  // Verifique se o mouse está dentro do contêiner
   if (
     event.clientX < containerRect.left ||
     event.clientX > containerRect.right ||
@@ -270,14 +285,25 @@ function draw(event) {
     return;
   }
 
-  const currentX = event.clientX - containerRect.left;
-  const currentY = event.clientY - containerRect.top;
+  // Obtenha a escala atual do elemento
+  const computedStyle = getComputedStyle(wrapperImage);
+  const scale = parseFloat(computedStyle.transform.match(/matrix\(([^,]*)/)[1]);
 
-  const width = currentX - startX;
-  const height = currentY - startY;
+  let currentScale = wrapperImage.style.scale;
 
-  hachuraX = `${Math.min(startX, currentX)}px`;
-  hachuraY = `${Math.min(startY, currentY)}px`;
+  console.log(scale);
+
+  // Ajuste as coordenadas do mouse com base na escala e na translação
+  const offsetX = (event.clientX - containerRect.left) / scale;
+  const offsetY = (event.clientY - containerRect.top) / scale;
+
+  // Calcule a largura e altura da hachura
+  const width = offsetX - startX;
+  const height = offsetY - startY;
+
+  // Defina a posição e o tamanho da hachura
+  hachuraX = `${Math.min(startX, offsetX)}px`;
+  hachuraY = `${Math.min(startY, offsetY)}px`;
   hachuraWidth = `${Math.abs(width)}px`;
   hachuraHeight = `${Math.abs(height)}px`;
 
