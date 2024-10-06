@@ -1,7 +1,7 @@
 var page = 1;
 const url = "https://api-hachuraservi1.websiteseguro.com/api/document";
 let totalPages = 0;
-const hachuras = [];
+let hachuras = [];
 
 let isDrawing = false;
 let startX, startY;
@@ -97,7 +97,11 @@ function loadHachuras() {
     hachuras.length = 0;
     hachuras.push(...pageData.hachuras);
     renderShowHachuras();
+    return;
   }
+
+  hachuras = [];
+  renderShowHachuras();
 }
 
 // Função para renderizar hachuras no documento
@@ -129,7 +133,7 @@ function saveHachuras() {
     pages: [],
   };
 
-  const pageData = data.pages.find((p) => p.id === page);
+  const pageData = data.pages.find((_page) => _page.id === page);
   if (!pageData) {
     data.pages.push({ id: page, img: "", hachuras });
   } else {
@@ -157,7 +161,6 @@ function addHachura(x, y) {
 
 // Configurar botão de edição de hachuras
 const editButton = document.getElementById("edit-button");
-
 editButton.addEventListener("click", () => {
   const img = document.getElementById("image");
 
@@ -208,6 +211,7 @@ function startDrawing(event) {
   hachuraElement.style.border = "1px solid red";
   hachuraElement.style.pointerEvents = "none";
   hachuraElement.style.backgroundColor = "rgba(190, 15, 15, 0.3)";
+
   document.getElementById("image-container").appendChild(hachuraElement);
 }
 
@@ -250,12 +254,12 @@ function stopDrawing() {
   const img = document.getElementById("wrapper-image");
   const rect = hachuraElement.getBoundingClientRect();
 
-  const hachuraX = rect.left - img.getBoundingClientRect().left; // X relativo à imagem
-  const hachuraY = rect.top - img.getBoundingClientRect().top; // Y relativo à imagem
+  const hachuraX = img.getBoundingClientRect().left; // X relativo à imagem
+  const hachuraY = img.getBoundingClientRect().top; // Y relativo à imagem
 
   // Adiciona a hachura ao finalizar o desenho
   addHachura(hachuraX, hachuraY);
-  document.getElementById("image-container").removeChild(hachuraElement); // Remove o retângulo após salvar
+  // document.getElementById("image-container").removeChild(hachuraElement); // Remove o retângulo após salvar
 }
 
 /**
