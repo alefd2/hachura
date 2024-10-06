@@ -1,4 +1,4 @@
-var page = "1";
+var page = 1;
 const url = "https://api-hachuraservi1.websiteseguro.com/api/document";
 let totalPages = 0;
 const hachuras = [];
@@ -69,11 +69,6 @@ async function contructImageInScrem() {
       img.style.transition = "transform 0.3s ease";
       img.style.transformOrigin = "center center";
 
-      const zoomImageContainer = document.getElementById("wrapper-image");
-
-      zoomImageContainer.style.width = `${img.naturalWidth}px`; // Ensure container matches image width
-      zoomImageContainer.style.height = `${img.naturalHeight}px`; // Ensure container matches image height
-
       // container.innerHTML = "";
 
       const totalPageElement = document.getElementById("total-pages");
@@ -89,6 +84,19 @@ async function contructImageInScrem() {
     showLoading(TypeStatus.STOP);
   } finally {
     showLoading(TypeStatus.STOP);
+  }
+}
+
+function loadHachuras() {
+  const data = JSON.parse(localStorage.getItem("documentData")) || {
+    pages: [],
+  };
+  const pageData = data.pages.find((_page) => _page.id === page);
+
+  if (pageData) {
+    hachuras.length = 0;
+    hachuras.push(...pageData.hachuras);
+    renderShowHachuras();
   }
 }
 
@@ -131,19 +139,6 @@ function saveHachuras() {
   localStorage.setItem("documentData", JSON.stringify(data));
 }
 
-function loadHachuras() {
-  const data = JSON.parse(localStorage.getItem("documentData")) || {
-    pages: [],
-  };
-  const pageData = data.pages.find((p) => p.id === page);
-
-  if (pageData) {
-    hachuras.length = 0;
-    hachuras.push(...pageData.hachuras);
-    renderShowHachuras();
-  }
-}
-
 // Função para adicionar hachuras
 function addHachura(x, y) {
   const hachura = {
@@ -164,9 +159,9 @@ function addHachura(x, y) {
 const editButton = document.getElementById("edit-button");
 
 editButton.addEventListener("click", () => {
-  const img = document.getElementById("wrapper-image");
+  const img = document.getElementById("image");
 
-  if (editButton.innerText === "Editar Hachura") {
+  if (editButton.innerText === "Editar Hachura" && !isDrawing) {
     editButton.style.backgroundColor = "red";
     editButton.innerText = "Salvar Hachura";
 
@@ -177,7 +172,7 @@ editButton.addEventListener("click", () => {
   } else {
     editButton.style.backgroundColor = "";
     editButton.innerText = "Editar Hachura";
-    resetZoomAndDragEvents(false);
+
     img.removeEventListener("mousedown", startDrawing);
     img.removeEventListener("mousemove", draw);
     img.removeEventListener("mouseup", stopDrawing);
@@ -277,7 +272,7 @@ mainImages();
  * =============== DEFAULT FUNCIONTS =============================
  */
 
-// ========== LOADING
+// ========== LOADING ======
 
 function showLoading(statusLoading = TypeStatus.STOP) {
   if (statusLoading == TypeStatus.START) {
@@ -289,7 +284,7 @@ function showLoading(statusLoading = TypeStatus.STOP) {
   }
 }
 
-// ========== TOAST
+// ========== TOAST ======
 
 function showToast(message, type = "ERROR") {
   const toastContent = document.getElementById("toast");
@@ -316,7 +311,7 @@ function showToast(message, type = "ERROR") {
   }, 5000);
 }
 
-// =========== NAVIGATION PAGE
+// =========== NAVIGATION PAGE ======
 document.getElementById("prev-button").addEventListener("click", () => {
   if (page > 1) {
     page--;
