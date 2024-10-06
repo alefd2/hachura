@@ -3,6 +3,11 @@ const url = "https://api-hachuraservi1.websiteseguro.com/api/document";
 let totalPages = 0;
 let hachuras = [];
 
+let hachuraX;
+let hachuraY;
+let hachuraWidth;
+let hachuraHeight;
+
 let isDrawing = false;
 let startX, startY;
 let hachuraElement = null;
@@ -107,20 +112,13 @@ function loadHachuras() {
 // Função para renderizar hachuras no documento
 function renderShowHachuras() {
   const container = document.getElementById("hachura-container");
-  if (!container) {
-    const hachuraElement = document.createElement("div");
-    hachuraElement.className = "hachura-container";
-    // showToast("Elemento hachura não encontrado", TypeError.ERROR);
-    // console.error("Elemento 'hachura-container' não encontrado.");
-  }
-
   container.innerHTML = "";
 
   hachuras.forEach((hachura) => {
     const hachuraElement = document.createElement("div");
     hachuraElement.style.position = "absolute";
-    hachuraElement.style.width = hachura.size;
-    hachuraElement.style.height = hachura.size;
+    hachuraElement.style.width = `${hachura.size.width}px`;
+    hachuraElement.style.height = `${hachura.size.height}px`;
     hachuraElement.style.backgroundColor = hachura.color;
     hachuraElement.style.top = `${hachura.position.top}px`;
     hachuraElement.style.left = `${hachura.position.left}px`;
@@ -128,7 +126,24 @@ function renderShowHachuras() {
   });
 }
 
-function saveHachuras() {
+// Função para adicionar hachuras
+function addHachura() {
+  const currentHachura = {
+    id: Date.now(),
+    position: { top: parseFloat(hachuraY), left: parseFloat(hachuraX) },
+    size: {
+      width: parseFloat(hachuraWidth),
+      height: parseFloat(hachuraHeight),
+    },
+    color: "rgba(190, 15, 15, 0.3)",
+  };
+
+  hachuras.push(currentHachura);
+
+  // saveHachuras();
+}
+
+async function saveHachuras() {
   const data = JSON.parse(localStorage.getItem("documentData")) || {
     pages: [],
   };
@@ -137,31 +152,15 @@ function saveHachuras() {
   if (!pageData) {
     data.pages.push({ id: page, img: "", hachuras });
   } else {
-    pageData.hachuras = hachuras;
+    pageData.hachuras = hachuras; // Atualiza as hachuras para a página atual
   }
 
-  localStorage.setItem("documentData", JSON.stringify(data));
-}
-
-// Função para adicionar hachuras
-function addHachura(x, y) {
-  const hachura = {
-    id: Date.now(),
-    position: { top: y, left: x },
-    size: "10px",
-    color: "red",
-  };
-  hachuras.push(hachura);
-  renderShowHachuras();
-
-  saveHachuras();
-  if (isDrawing) {
-  }
+  localStorage.setItem("documentData", JSON.stringify(data)); // Salva no localStorage
 }
 
 // Configurar botão de edição de hachuras
 const editButton = document.getElementById("edit-button");
-editButton.addEventListener("click", () => {
+editButton.addEventListener("click", async () => {
   const img = document.getElementById("image");
 
   if (editButton.innerText === "Editar Hachura" && !isDrawing) {
@@ -176,6 +175,8 @@ editButton.addEventListener("click", () => {
     editButton.style.backgroundColor = "";
     editButton.innerText = "Editar Hachura";
 
+    await saveHachuras();
+
     img.removeEventListener("mousedown", startDrawing);
     img.removeEventListener("mousemove", draw);
     img.removeEventListener("mouseup", stopDrawing);
@@ -184,7 +185,7 @@ editButton.addEventListener("click", () => {
 });
 
 /**
- * ====== DRAW HACHURA
+ * ====== DRAW HATCH
  */
 
 function startDrawing(event) {
@@ -212,54 +213,51 @@ function startDrawing(event) {
   hachuraElement.style.pointerEvents = "none";
   hachuraElement.style.backgroundColor = "rgba(190, 15, 15, 0.3)";
 
-  document.getElementById("image-container").appendChild(hachuraElement);
+  document.getElementById("hachura-container").appendChild(hachuraElement);
 }
 
 function draw(event) {
   if (!isDrawing) return;
 
-  const img = document.getElementById("wrapper-image");
-  const rect = img.getBoundingClientRect();
+  const hachuraContainer = document.getElementById("wrapper-image");
+  const img = document.getElementById("image");
+  const containerRect = hachuraContainer.getBoundingClientRect();
 
   // Verifica se o mouse está dentro da imagem
   if (
-    event.clientX < rect.left ||
-    event.clientX > rect.right ||
-    event.clientY < rect.top ||
-    event.clientY > rect.bottom
+    event.clientX < containerRect.left ||
+    event.clientX > containerRect.right ||
+    event.clientY < containerRect.top ||
+    event.clientY > containerRect.bottom
   ) {
     return;
   }
 
-  const currentX = event.offsetX;
-  const currentY = event.offsetY;
+  // Calcula a posição relativa à imagem
+  const currentX = event.clientX - containerRect.left;
+  const currentY = event.clientY - containerRect.top;
 
   // Calcula a largura e altura do retângulo
   const width = currentX - startX;
   const height = currentY - startY;
 
-  // Atualiza a posição e tamanho do retângulo
-  hachuraElement.style.left = `${Math.min(startX, currentX)}px`;
-  hachuraElement.style.top = `${Math.min(startY, currentY)}px`;
-  hachuraElement.style.width = `${Math.abs(width)}px`;
-  hachuraElement.style.height = `${Math.abs(height)}px`;
+  hachuraX = `${Math.min(startX, currentX)}px`;
+  hachuraY = `${Math.min(startY, currentY)}px`;
+  hachuraWidth = `${Math.abs(width)}px`;
+  hachuraHeight = `${Math.abs(height)}px`;
+
+  // // Atualiza a posição e tamanho do retângulo
+  hachuraElement.style.left = hachuraX;
+  hachuraElement.style.top = hachuraY;
+  hachuraElement.style.width = hachuraWidth;
+  hachuraElement.style.height = hachuraHeight;
 }
 
 function stopDrawing() {
   if (!isDrawing) return;
-
   isDrawing = false;
-
-  // Captura as coordenadas finais ao parar de desenhar
-  const img = document.getElementById("wrapper-image");
-  const rect = hachuraElement.getBoundingClientRect();
-
-  const hachuraX = img.getBoundingClientRect().left; // X relativo à imagem
-  const hachuraY = img.getBoundingClientRect().top; // Y relativo à imagem
-
-  // Adiciona a hachura ao finalizar o desenho
-  addHachura(hachuraX, hachuraY);
-  // document.getElementById("image-container").removeChild(hachuraElement); // Remove o retângulo após salvar
+  addHachura();
+  // document.getElementById("hachura-container").removeChild(hachuraElement);
 }
 
 /**
