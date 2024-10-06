@@ -72,10 +72,6 @@ footer {
   justify-content: center;
 }
 
-#image-container {
-  /* margin: 20px; */
-}
-
 .navigation {
   display: flex;
   justify-content: center;
@@ -110,4 +106,32 @@ footer {
 
 #wrapper-number-pages #total-pages {
   color: var(--primary-color);
+}
+
+/* ====== loading =========*/
+
+.loading-container {
+  position: fixed;
+  top: 10%;
+  width: 100%;
+  height: 80%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(128, 128, 128, 0.1);
+  border-radius: 50%;
+  border-top-color: #07812f;
+  animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

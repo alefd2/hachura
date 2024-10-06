@@ -32,10 +32,16 @@
     </header>
     <main>
       <div id="image-container">
-        <img id="zoom-image" src="" alt="Imagem do documento" />
-        <div id="hachura-container"></div>
+        <div id="wrapper-image">
+          <div id="hachura-container"></div>
+          <img id="image" src="" />
+        </div>
       </div>
     </main>
+
+    <div id="isLoading" class="loading-container" style="display: none">
+      <div class="spinner"></div>
+    </div>
 
     <div id="toast">
       <span id="toast-icon" class="toast-icon"></span>

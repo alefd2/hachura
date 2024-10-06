@@ -12,6 +12,11 @@ const TypeError = {
   ERROR: "ERROR",
 };
 
+const TypeStatus = {
+  START: "START",
+  STOP: "STOP",
+};
+
 // Função para buscar imagens base64
 async function fetchImagesBase64(url, page) {
   try {
@@ -50,22 +55,26 @@ async function fetchImagesBase64(url, page) {
 
 // Função para construir a imagem na tela e carregar as hachuras
 async function contructImageInScrem() {
+  showLoading(TypeStatus.START);
   try {
     const responseFetch = await fetchImagesBase64(url, page);
 
     if (responseFetch) {
       const base64Image = responseFetch.data.image;
 
-      const img = document.getElementById("zoom-image");
+      const img = document.getElementById("image");
       img.src = base64Image;
       img.alt = "Imagem do documento";
       img.style.width = "auto";
       img.style.transition = "transform 0.3s ease";
       img.style.transformOrigin = "center center";
 
-      const container = document.getElementById("image-container");
-      container.innerHTML = "";
-      container.appendChild(img);
+      const zoomImageContainer = document.getElementById("wrapper-image");
+
+      zoomImageContainer.style.width = `${img.naturalWidth}px`; // Ensure container matches image width
+      zoomImageContainer.style.height = `${img.naturalHeight}px`; // Ensure container matches image height
+
+      // container.innerHTML = "";
 
       const totalPageElement = document.getElementById("total-pages");
       totalPageElement.innerText = `${page}/${totalPages}`;
@@ -74,8 +83,12 @@ async function contructImageInScrem() {
     } else {
       showToast("Erro ao recuperar a imagem!", TypeError.ERROR);
     }
+    showLoading(TypeStatus.STOP);
   } catch (error) {
     console.error("Erro:", error);
+    showLoading(TypeStatus.STOP);
+  } finally {
+    showLoading(TypeStatus.STOP);
   }
 }
 
@@ -83,9 +96,10 @@ async function contructImageInScrem() {
 function renderShowHachuras() {
   const container = document.getElementById("hachura-container");
   if (!container) {
-    showToast("Elemento hachura não encontrado", TypeError.ERROR);
-    console.error("Elemento 'hachura-container' não encontrado.");
-    return;
+    const hachuraElement = document.createElement("div");
+    hachuraElement.className = "hachura-container";
+    // showToast("Elemento hachura não encontrado", TypeError.ERROR);
+    // console.error("Elemento 'hachura-container' não encontrado.");
   }
 
   container.innerHTML = "";
@@ -140,14 +154,17 @@ function addHachura(x, y) {
   };
   hachuras.push(hachura);
   renderShowHachuras();
-  saveHachuras(); // Salva hachuras ao adicionar
+
+  saveHachuras();
+  if (isDrawing) {
+  }
 }
 
 // Configurar botão de edição de hachuras
 const editButton = document.getElementById("edit-button");
 
 editButton.addEventListener("click", () => {
-  const img = document.getElementById("zoom-image");
+  const img = document.getElementById("wrapper-image");
 
   if (editButton.innerText === "Editar Hachura") {
     editButton.style.backgroundColor = "red";
@@ -173,7 +190,7 @@ editButton.addEventListener("click", () => {
  */
 
 function startDrawing(event) {
-  const img = document.getElementById("zoom-image");
+  const img = document.getElementById("wrapper-image");
   const rect = img.getBoundingClientRect();
 
   // Verifica se o mouse está dentro da imagem
@@ -202,7 +219,7 @@ function startDrawing(event) {
 function draw(event) {
   if (!isDrawing) return;
 
-  const img = document.getElementById("zoom-image");
+  const img = document.getElementById("wrapper-image");
   const rect = img.getBoundingClientRect();
 
   // Verifica se o mouse está dentro da imagem
@@ -235,7 +252,7 @@ function stopDrawing() {
   isDrawing = false;
 
   // Captura as coordenadas finais ao parar de desenhar
-  const img = document.getElementById("zoom-image");
+  const img = document.getElementById("wrapper-image");
   const rect = hachuraElement.getBoundingClientRect();
 
   const hachuraX = rect.left - img.getBoundingClientRect().left; // X relativo à imagem
@@ -259,6 +276,18 @@ mainImages();
 /**
  * =============== DEFAULT FUNCIONTS =============================
  */
+
+// ========== LOADING
+
+function showLoading(statusLoading = TypeStatus.STOP) {
+  if (statusLoading == TypeStatus.START) {
+    const loadingContainer = document.getElementById("isLoading");
+    loadingContainer.style.display = "flex";
+  } else if (statusLoading == TypeStatus.STOP) {
+    const loadingContainer = document.getElementById("isLoading");
+    loadingContainer.style.display = "none";
+  }
+}
 
 // ========== TOAST
 

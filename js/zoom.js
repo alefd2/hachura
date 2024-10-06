@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-  const img = document.getElementById("zoom-image");
+  const img = document.getElementById("wrapper-image");
   const container = document.getElementById("image-container");
 
   let scale = 1;
