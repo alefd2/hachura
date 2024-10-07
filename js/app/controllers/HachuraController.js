@@ -8,6 +8,10 @@ class HachuraController {
     this.isDrawing = false;
     this.isEdit = false;
 
+    this.wrapperImage = document.getElementById("wrapper-image");
+    this.container = document.getElementById("image-container");
+    this.rect = wrapperImage.getBoundingClientRect();
+
     this.setupEventListeners();
   }
 
@@ -95,13 +99,35 @@ class HachuraController {
   }
 
   startDrawing(event) {
+    // Desabilita a interação com as hachuras existentes
+    const hachurasExistentes = document.querySelectorAll(
+      "#hachura-container div"
+    );
+    hachurasExistentes.forEach((hachura) => {
+      hachura.style.pointerEvents = "none";
+    });
+
     this.isDrawing = true;
+    this.isEdit = true;
+
+    // Obtém o estilo computado e a escala da imagem
+    const computedStyle = getComputedStyle(this.wrapperImage);
+    const scale = parseFloat(
+      computedStyle.transform.match(/matrix\(([^,]*)/)[1]
+    );
+
+    // Ajusta as coordenadas iniciais do clique
+    this.startX = (event.clientX - this.rect.left) / scale;
+    this.startY = (event.clientY - this.rect.top) / scale;
+
+    // Cria uma nova hachura com os dados iniciais
     const hachura = {
       id: Date.now(),
-      position: { top: event.offsetY, left: event.offsetX },
-      size: { width: 100, height: 100 },
-      color: "rgba(255, 0, 0, 0.5)",
+      position: { top: this.startY, left: this.startX },
+      size: { width: 0, height: 0 },
+      color: "rgba(190, 15, 15, 0.3)",
     };
+
     this.model.addHachura(hachura);
     this.view.renderHachuras(this.model.hachuras);
   }
