@@ -1,68 +1,73 @@
-class HachuraView {
-  constructor() {
-    this.img = document.getElementById("image");
-    this.hachuraContainer = document.getElementById("hachura-container");
-    this.totalPageElement = document.getElementById("total-pages");
-    this.toastContent = document.getElementById("toast");
-    this.toastMessage = document.getElementById("toast-message");
-    this.toastIcon = document.getElementById("toast-icon");
-  }
+// Funções responsáveis pela interface gráfica (View)
 
-  renderImage(base64Image) {
-    this.img.src = base64Image;
-    this.img.alt = "Imagem do documento";
-    this.img.style.width = "auto";
-    this.img.style.transition = "transform 0.3s ease";
-    this.img.style.transformOrigin = "center center";
-    this.img.style.boxShadow = "0 4px 22px rgba(0, 0, 0, 0.4)";
-    this.img.style.borderRadius = "5px";
-  }
+export function renderImage(base64Image, page, totalPages) {
+  const img = document.getElementById("image");
+  img.src = base64Image;
+  img.alt = "Imagem do documento";
+  img.style.width = "auto";
+  img.style.transition = "transform 0.3s ease";
+  img.style.transformOrigin = "center center";
+  img.style.boxShadow = "0 4px 22px rgba(0, 0, 0, 0.4)";
+  img.style.borderRadius = "5px";
 
-  renderHachuras(hachuras) {
-    this.hachuraContainer.innerHTML = "";
-    hachuras.forEach((hachura, index) => {
-      const hachuraElement = document.createElement("div");
-      hachuraElement.style.position = "absolute";
-      hachuraElement.id = hachura.id;
-      hachuraElement.style.width = `${hachura.size.width}px`;
-      hachuraElement.style.height = `${hachura.size.height}px`;
-      hachuraElement.style.backgroundColor = hachura.color;
-      hachuraElement.style.top = `${hachura.position.top}px`;
-      hachuraElement.style.left = `${hachura.position.left}px`;
-      hachuraElement.dataset.index = index;
+  const totalPageElement = document.getElementById("total-pages");
+  totalPageElement.innerText = `${page}/${totalPages}`;
+}
 
-      this.hachuraContainer.appendChild(hachuraElement);
+export function renderHatches(hachuras) {
+  const container = document.getElementById("hachura-container");
+  container.innerHTML = "";
+
+  hachuras.forEach((hachura, index) => {
+    const hachuraElement = document.createElement("div");
+    hachuraElement.style.position = "absolute";
+    hachuraElement.id = hachura.id;
+    hachuraElement.style.width = `${hachura.size.width}px`;
+    hachuraElement.style.height = `${hachura.size.height}px`;
+    hachuraElement.style.backgroundColor = hachura.color;
+    hachuraElement.style.top = `${hachura.position.top}px`;
+    hachuraElement.style.left = `${hachura.position.left}px`;
+
+    hachuraElement.addEventListener("mousedown", (event) => {
+      if (event.button === 2 || event.button === 1) {
+        removeHatch(index);
+        event.preventDefault();
+      }
     });
-  }
 
-  updateTotalPages(currentPage, totalPages) {
-    this.totalPageElement.innerText = `${currentPage}/${totalPages}`;
-  }
+    container.appendChild(hachuraElement);
+  });
+}
 
-  showLoading(statusLoading = "STOP") {
-    if (statusLoading == "START") {
-      const loadingContainer = document.getElementById("isLoading");
-      loadingContainer.style.display = "flex";
-    } else if (statusLoading == "STOP") {
-      const loadingContainer = document.getElementById("isLoading");
-      loadingContainer.style.display = "none";
-    }
-  }
-
-  showToast(message, type) {
-    this.toastMessage.textContent = message;
-
-    this.toastContent.className =
-      type === "SUCCESS" ? "toast-success" : "toast-error";
-    this.toastIcon.className =
-      type === "SUCCESS" ? "fas fa-check-circle" : "fas fa-exclamation-circle";
-
-    this.toastContent.classList.add("show");
-
-    setTimeout(() => {
-      this.toastContent.classList.remove("show");
-    }, 5000);
+// Mostrar/ocultar loading
+export function showLoading(statusLoading) {
+  const loadingContainer = document.getElementById("isLoading");
+  if (statusLoading === "START") {
+    loadingContainer.style.display = "flex";
+  } else {
+    loadingContainer.style.display = "none";
   }
 }
 
-export default HachuraView;
+// Função para exibir um toast com mensagem
+export function showToast(message, type) {
+  const toastContent = document.getElementById("toast");
+  const icon = document.getElementById("toast-icon");
+  const messageElement = document.getElementById("toast-message");
+
+  messageElement.textContent = message;
+
+  toastContent.className = "";
+  if (type === "SUCCESS") {
+    toastContent.classList.add("toast-success");
+    icon.className = "fas fa-check-circle";
+  } else {
+    toastContent.classList.add("toast-error");
+    icon.className = "fas fa-exclamation-circle";
+  }
+
+  toastContent.className += " show";
+  setTimeout(() => {
+    toastContent.className = toastContent.className.replace("show", "");
+  }, 5000);
+}

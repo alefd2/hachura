@@ -49,6 +49,23 @@
     </div>
 
     <script src="js/app/zoom.js"></script>
-    <script src="js/app/main.js" type="module"></script>
+    <!-- <script src="js/app/main.js" type="module"></script>
+
+    <script src="js/app/models/HachuraModel.js"></script>
+    <script src="js/app/views/HachuraView.js"></script>
+    <script src="js/app/controllers/HachuraController.js"></script> -->
+
+    <script
+      type="module"
+      src="js/app/controllers/HachuraController.js"
+    ></script>
+
+    <script>
+      const image = document.getElementById("image");
+
+      image.addEventListener("dragstart", function (event) {
+        event.preventDefault();
+      });
+    </script>
   </body>
 </html>
