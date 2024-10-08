@@ -1,16 +1,5 @@
-import {
-  fetchImagesBase64,
-  loadHatches,
-  saveHatches,
-  addHatch,
-  removeHatch,
-} from "../models/HachuraModel.js";
-import {
-  renderImage,
-  renderHatches,
-  showLoading,
-  showToast,
-} from "../views/HachuraView.js";
+import { Model as hatchModel } from "../models/HatchModel.js";
+import { View as hatchView } from "../views/HatchView.js";
 
 const url = "https://api-hachuraservi1.websiteseguro.com/api/document";
 
@@ -19,46 +8,69 @@ let isEdit = false;
 let hachuraElement = null;
 let startX, startY;
 let hachuraX, hachuraY, hachuraWidth, hachuraHeight;
+let page = 1;
 
 async function constructImageInScrem() {
-  showLoading("START");
+  hatchView.showLoading("START");
   try {
-    const responseFetch = await fetchImagesBase64(url, page);
+    const responseFetch = await hatchModel.fetchImagesBase64(url, page);
     if (responseFetch) {
       const base64Image = responseFetch.data.image;
-      renderImage(base64Image, page, responseFetch.totalPages);
-      const hachuras = loadHatches(page);
-      renderHatches(hachuras);
+
+      // pega as o base64 manda para a view
+      hatchView.renderImage(base64Image, page, responseFetch.totalPages);
+
+      // pega as hachuras salvas no model e manda para a view
+      const hatches = hatchModel.loadHatches(page);
+      console.table(hatches);
+      hatchView.renderHatches(hatches);
+      setupHatchRemoval();
     }
   } catch (error) {
-    showToast("Erro ao recuperar a imagem!", "ERROR");
+    console.error(error);
+    hatchView.showToast("Erro ao recuperar a imagem!", "ERROR");
   } finally {
-    showLoading("STOP");
+    hatchView.showLoading("STOP");
   }
 }
 
 function setupHatchRemoval() {
   const container = document.getElementById("hachura-container");
+
   container.addEventListener("mousedown", (event) => {
     if (event.button === 2 || event.button === 1) {
       const target = event.target;
       if (target && target.parentNode === container) {
         const index = Array.from(container.children).indexOf(target);
-        removeHatch(index);
-        renderHatches(hachuras);
-        saveHatches(page, hachuras);
-        event.preventDefault();
+
+        if (index !== -1) {
+          hatchModel.removeHatch(index);
+          hatchModel.saveHatches(page);
+          const hatches = hatchModel.loadHatches(page);
+          hatchView.renderHatches(hatches);
+        }
       }
+      event.preventDefault();
     }
   });
 }
 
+// inicias o desenho e mostra em tempo real a hachura
 function startDrawing(event) {
   const wrapperImage = document.getElementById("wrapper-image");
   const rect = wrapperImage.getBoundingClientRect();
-  const scale = parseFloat(
-    getComputedStyle(wrapperImage).transform.match(/matrix\(([^,]*)/)[1]
-  );
+
+  const hatchsExist = document.querySelectorAll("#hachura-container div");
+  hatchsExist.forEach((hachura) => {
+    hachura.style.pointerEvents = "none";
+  });
+
+  isDrawing = true;
+  isEdit = true;
+
+  const translateY = 0;
+  const computedStyle = getComputedStyle(wrapperImage);
+  const scale = parseFloat(computedStyle.transform.match(/matrix\(([^,]*)/)[1]);
 
   startX = (event.clientX - rect.left) / scale;
   startY = (event.clientY - rect.top) / scale;
@@ -68,7 +80,7 @@ function startDrawing(event) {
   hachuraElement.style.border = "1px solid red";
   hachuraElement.style.backgroundColor = "rgba(190, 15, 15, 0.3)";
   hachuraElement.style.pointerEvents = "none";
-  hachuraElement.style.zIndex = hachuras.length + 1;
+  hachuraElement.style.zIndex = hatchModel.getHatches().length + 1;
 
   hachuraElement.style.left = `${startX}px`;
   hachuraElement.style.top = `${startY}px`;
@@ -99,50 +111,84 @@ function draw(event) {
   hachuraElement.style.height = `${hachuraHeight}px`;
 }
 
-function finishDrawing() {
+function stopDrawing() {
+  if (!isDrawing) return;
   isDrawing = false;
+
+  const hachurasExistentes = document.querySelectorAll(
+    "#hachura-container div"
+  );
+  hachurasExistentes.forEach((hachura) => {
+    hachura.style.pointerEvents = "auto";
+  });
+
   if (hachuraElement) {
-    addHatch(hachuraX, hachuraY, hachuraWidth, hachuraHeight);
-    saveHatches(page, hachuras);
-    renderHatches(hachuras);
+    hatchModel.addHatch(hachuraX, hachuraY, hachuraWidth, hachuraHeight);
+    // hatchModel.saveHatches(page, hatchModel.getHatches());
+    // hatchModel.loadHatches(page);
   }
 }
 
 // Função para alternar o modo de edição
 function onEditHachuraClick() {
   const button = document.getElementById("edit-button");
+
+  const img = document.getElementById("image");
+
+  const hachurasExistentes = document.querySelectorAll(
+    "#hachura-container div"
+  );
   if (!isEdit) {
     button.innerHTML = "Salvar Hachura";
     button.style.backgroundColor = "red";
-    wrapperImage.addEventListener("mousedown", startDrawing);
-    wrapperImage.addEventListener("mousemove", draw);
-    wrapperImage.addEventListener("mouseup", finishDrawing);
+    img.addEventListener("mousedown", startDrawing);
+    img.addEventListener("mousemove", draw);
+    img.addEventListener("mouseup", stopDrawing);
+    img.addEventListener("mouseleave", stopDrawing);
+
+    hachurasExistentes.forEach((hachura) => {
+      hachura.style.pointerEvents = "none";
+    });
   } else {
     button.innerHTML = "Editar Hachura";
     button.style.backgroundColor = "";
-    wrapperImage.removeEventListener("mousedown", startDrawing);
-    wrapperImage.removeEventListener("mousemove", draw);
-    wrapperImage.removeEventListener("mouseup", finishDrawing);
-    saveHatches(page, hachuras);
+    img.removeEventListener("mousedown", startDrawing);
+    img.removeEventListener("mousemove", draw);
+    img.removeEventListener("mouseleave", stopDrawing);
+    hachurasExistentes.forEach((hachura) => {
+      hachura.style.pointerEvents = "auto";
+    });
+    hatchModel.saveHatches(page);
   }
   isEdit = !isEdit;
 }
 
-function onNextPage() {
+function onNextPage(step = 1) {
   if (!isEdit) {
-    page++;
-    constructImageInScrem();
+    if (page + step) {
+      page += step;
+      constructImageInScrem();
+    } else {
+      hatchView.showToast("Você já está na última página!", "INFO");
+    }
   } else {
-    showToast("Salve ou termine a edição antes de avançar!", "ERROR");
+    hatchView.showToast("Salve ou termine a edição antes de avançar!", "ERROR");
   }
 }
 
-function onPrevPage() {
+function onPrevPage(step = 1) {
   if (!isEdit) {
-    page--;
-    constructImageInScrem();
+    if (page - step >= 1) {
+      page -= step;
+      constructImageInScrem();
+    } else {
+      hatchView.showToast("Você já está na primeira página!", "INFO");
+    }
   } else {
-    showToast("Salve ou termine a edição antes de retroceder!", "ERROR");
+    hatchView.showToast(
+      "Salve ou termine a edição antes de retroceder!",
+      "ERROR"
+    );
   }
 }
 
@@ -150,8 +196,19 @@ function onPrevPage() {
 document
   .getElementById("edit-button")
   .addEventListener("click", onEditHachuraClick);
-document.getElementById("next-button").addEventListener("click", onNextPage);
-document.getElementById("prev-button").addEventListener("click", onPrevPage);
+document
+  .getElementById("next-button")
+  .addEventListener("click", () => onNextPage(1));
+document
+  .getElementById("prev-button")
+  .addEventListener("click", () => onPrevPage(1));
+
+document
+  .getElementById("next-ten-button")
+  .addEventListener("click", () => onNextPage(10));
+document
+  .getElementById("prev-ten-button")
+  .addEventListener("click", () => onPrevPage(10));
 
 // Inicialização da página
 constructImageInScrem();
