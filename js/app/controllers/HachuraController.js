@@ -164,9 +164,14 @@ function onEditHachuraClick() {
 }
 
 function onNextPage(step = 1) {
+  let totalPages = 1493;
+
   if (!isEdit) {
-    if (page + step) {
-      page += step;
+    const remainingPages = totalPages - page;
+
+    if (remainingPages > 0) {
+      // Se a quantidade de passos for maior que o restante de páginas, avança apenas o necessário
+      page += Math.min(step, remainingPages);
       constructImageInScrem();
     } else {
       hatchView.showToast("Você já está na última página!", "INFO");
@@ -178,10 +183,13 @@ function onNextPage(step = 1) {
 
 function onPrevPage(step = 1) {
   if (!isEdit) {
+    // Evita retroceder além da primeira página
     if (page - step >= 1) {
       page -= step;
       constructImageInScrem();
     } else {
+      page = 1; // Garantir que não retroceda para valores menores que 1
+      constructImageInScrem();
       hatchView.showToast("Você já está na primeira página!", "INFO");
     }
   } else {
