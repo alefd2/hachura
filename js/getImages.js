@@ -291,8 +291,6 @@ function draw(event) {
 
   let currentScale = wrapperImage.style.scale;
 
-  console.log(scale);
-
   // Ajuste as coordenadas do mouse com base na escala e na translação
   const offsetX = (event.clientX - containerRect.left) / scale;
   const offsetY = (event.clientY - containerRect.top) / scale;

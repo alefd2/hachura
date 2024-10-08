@@ -14,7 +14,6 @@
     <header>
       <h1>Hachura</h1>
       <button id="edit-button">Editar Hachura</button>
-      <!-- <button id="reset-zoom" style="margin-top: 10px">Resetar Zoom</button> -->
     </header>
     <main>
       <div id="image-container">
@@ -23,14 +22,26 @@
           <img id="image" src="" />
         </div>
       </div>
-    </main>
+      <div class="tools-edit-box" id="tools-edit-box" style="display: none">
+        <span>Box de edição</span>
+        <div class="divider"></div>
+        <div class="color-picker-wrapper">
+          <input type="color" id="hachura-color-picker" value="#be0f0f" />
+          <div class="custom-color-display" id="custom-color-display"></div>
+        </div>
 
+        <!-- Checkbox para aplicar o efeito de blur -->
+        <label>
+          <input type="checkbox" id="hachura-blur-checkbox" />
+          Aplicar Blur
+        </label>
+      </div>
+    </main>
     <footer>
       <div class="navigation">
-        <button id="prev-ten-button">Menos 10</button>
+        <button id="prev-ten-button">10</button>
         <button id="prev-button">
-          <i class="fas fa-chevron-left"></i>
-          Anterior
+          <i class="fas fa-chevron-left"></i> Anterior
         </button>
         <div id="wrapper-number-pages">
           <div id="total-pages"></div>
@@ -51,30 +62,23 @@
       <span id="toast-message"></span>
     </div>
 
+    <script src="js/utils/zoom.js"></script>
+    <!-- <script src="js/app/main.js" type="module"></script>
+
+    <script src="js/app/models/HachuraModel.js"></script>
+    <script src="js/app/views/HachuraView.js"></script>
+    <script src="js/app/controllers/HachuraController.js"></script> -->
+
+    <script src="js/app/models/HachuraModel.js"></script>
+
+    <script type="module" src="js/app/controllers/HatchController.js"></script>
+
     <script>
-      function showToast(message) {
-        const toast = document.createElement("div");
-        toast.className = "toast";
-        toast.textContent = message;
-
-        document.body.appendChild(toast);
-
-        setTimeout(() => {
-          toast.style.opacity = "0";
-        }, 3000);
-
-        toast.addEventListener("transitionend", () => {
-          document.body.removeChild(toast);
-        });
-      }
-
       const image = document.getElementById("image");
+
       image.addEventListener("dragstart", function (event) {
         event.preventDefault();
       });
     </script>
-
-    <script src="js/getImages.js"></script>
-    <script src="js/zoom.js"></script>
   </body>
 </html>
