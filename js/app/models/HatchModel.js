@@ -83,8 +83,6 @@ export const Model = (function () {
 
     const pageData = data.pages.find((_page) => _page.id === page);
 
-    console.log(pageData);
-
     if (!pageData) {
       data.pages.push({ id: page, img: "", hachuras });
     } else {
@@ -94,16 +92,26 @@ export const Model = (function () {
   }
 
   // Função para adicionar hachuras ao array
-  function addHatch(hachuraX, hachuraY, hachuraWidth, hachuraHeight) {
+  function addHatch(
+    hachuraX,
+    hachuraY,
+    hachuraWidth,
+    hachuraHeight,
+    selectedColor = "rgba(190, 15, 15, 0.3)",
+    isBlur
+  ) {
     const currentHachura = {
       id: hachuraId,
       position: { top: parseFloat(hachuraY), left: parseFloat(hachuraX) },
+      isBlur: isBlur,
       size: {
         width: parseFloat(hachuraWidth),
         height: parseFloat(hachuraHeight),
       },
-      color: "rgba(190, 15, 15, 0.3)",
+      color: selectedColor,
     };
+
+    console.log(currentHachura);
     hachuras.push(currentHachura);
   }
 

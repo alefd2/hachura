@@ -1,7 +1,5 @@
 // Funções responsáveis pela interface gráfica (View)
 
-import { Model as hatchModel } from "../models/HatchModel.js";
-
 export const View = (() => {
   function renderImage(base64Image, page, totalPages) {
     const img = document.getElementById("image");
@@ -30,13 +28,9 @@ export const View = (() => {
       hatchElement.style.backgroundColor = hachura.color;
       hatchElement.style.top = `${hachura.position.top}px`;
       hatchElement.style.left = `${hachura.position.left}px`;
-
-      // hatchElement.addEventListener("mousedown", (event) => {
-      //   if (event.button === 2 || event.button === 1) {
-      //     hatchModel.removeHatch(index);
-      //     event.preventDefault();
-      //   }
-      // });
+      if (hachura.isBlur) {
+        hatchElement.style.filter = "blur(10px)";
+      }
 
       container.appendChild(hatchElement);
     });

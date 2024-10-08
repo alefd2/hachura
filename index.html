@@ -22,10 +22,24 @@
           <img id="image" src="" />
         </div>
       </div>
+      <div class="tools-edit-box" id="tools-edit-box" style="display: none">
+        <span>Box de edição</span>
+        <div class="divider"></div>
+        <div class="color-picker-wrapper">
+          <input type="color" id="hachura-color-picker" value="#be0f0f" />
+          <div class="custom-color-display" id="custom-color-display"></div>
+        </div>
+
+        <!-- Checkbox para aplicar o efeito de blur -->
+        <label>
+          <input type="checkbox" id="hachura-blur-checkbox" />
+          Aplicar Blur
+        </label>
+      </div>
     </main>
     <footer>
       <div class="navigation">
-        <button id="prev-ten-button">Menos 10</button>
+        <button id="prev-ten-button">10</button>
         <button id="prev-button">
           <i class="fas fa-chevron-left"></i> Anterior
         </button>
@@ -57,10 +71,7 @@
 
     <script src="js/app/models/HachuraModel.js"></script>
 
-    <script
-      type="module"
-      src="js/app/controllers/HachuraController.js"
-    ></script>
+    <script type="module" src="js/app/controllers/HatchController.js"></script>
 
     <script>
       const image = document.getElementById("image");

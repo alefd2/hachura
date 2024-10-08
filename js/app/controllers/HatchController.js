@@ -9,6 +9,8 @@ let hachuraElement = null;
 let startX, startY;
 let hachuraX, hachuraY, hachuraWidth, hachuraHeight;
 let page = 1;
+let selectedColor = "#be0f0f";
+let isBlur = false;
 
 async function constructImageInScrem() {
   hatchView.showLoading("START");
@@ -77,10 +79,13 @@ function startDrawing(event) {
 
   hachuraElement = document.createElement("div");
   hachuraElement.style.position = "absolute";
-  hachuraElement.style.border = "1px solid red";
-  hachuraElement.style.backgroundColor = "rgba(190, 15, 15, 0.3)";
+  hachuraElement.style.border = `1px solid ${selectedColor}`;
+  hachuraElement.style.backgroundColor = selectedColor + "33";
   hachuraElement.style.pointerEvents = "none";
   hachuraElement.style.zIndex = hatchModel.getHatches().length + 1;
+  if (isBlur) {
+    hachuraElement.style.filter = "blur(5px)";
+  }
 
   hachuraElement.style.left = `${startX}px`;
   hachuraElement.style.top = `${startY}px`;
@@ -123,9 +128,15 @@ function stopDrawing() {
   });
 
   if (hachuraElement) {
-    hatchModel.addHatch(hachuraX, hachuraY, hachuraWidth, hachuraHeight);
-    // hatchModel.saveHatches(page, hatchModel.getHatches());
-    // hatchModel.loadHatches(page);
+    hatchModel.addHatch(
+      hachuraX,
+      hachuraY,
+      hachuraWidth,
+      hachuraHeight,
+      hexToRgba(selectedColor),
+      isBlur
+    );
+    hatchModel.saveHatches(page);
   }
 }
 
@@ -134,6 +145,7 @@ function onEditHachuraClick() {
   const button = document.getElementById("edit-button");
 
   const img = document.getElementById("image");
+  const toolBox = document.getElementById("tools-edit-box");
 
   const hachurasExistentes = document.querySelectorAll(
     "#hachura-container div"
@@ -141,6 +153,7 @@ function onEditHachuraClick() {
   if (!isEdit) {
     button.innerHTML = "Salvar Hachura";
     button.style.backgroundColor = "red";
+    toolBox.style.display = "";
     img.addEventListener("mousedown", startDrawing);
     img.addEventListener("mousemove", draw);
     img.addEventListener("mouseup", stopDrawing);
@@ -155,9 +168,11 @@ function onEditHachuraClick() {
     img.removeEventListener("mousedown", startDrawing);
     img.removeEventListener("mousemove", draw);
     img.removeEventListener("mouseleave", stopDrawing);
+    toolBox.style.display = "none";
     hachurasExistentes.forEach((hachura) => {
       hachura.style.pointerEvents = "auto";
     });
+
     hatchModel.saveHatches(page);
   }
   isEdit = !isEdit;
@@ -170,7 +185,6 @@ function onNextPage(step = 1) {
     const remainingPages = totalPages - page;
 
     if (remainingPages > 0) {
-      // Se a quantidade de passos for maior que o restante de páginas, avança apenas o necessário
       page += Math.min(step, remainingPages);
       constructImageInScrem();
     } else {
@@ -183,12 +197,11 @@ function onNextPage(step = 1) {
 
 function onPrevPage(step = 1) {
   if (!isEdit) {
-    // Evita retroceder além da primeira página
     if (page - step >= 1) {
       page -= step;
       constructImageInScrem();
     } else {
-      page = 1; // Garantir que não retroceda para valores menores que 1
+      page = 1;
       constructImageInScrem();
       hatchView.showToast("Você já está na primeira página!", "INFO");
     }
@@ -198,6 +211,24 @@ function onPrevPage(step = 1) {
       "ERROR"
     );
   }
+}
+
+function hexToRgba(hex, alpha = 0.3) {
+  let r = 0,
+    g = 0,
+    b = 0;
+
+  if (hex.length === 4) {
+    r = parseInt(hex[1] + hex[1], 16);
+    g = parseInt(hex[2] + hex[2], 16);
+    b = parseInt(hex[3] + hex[3], 16);
+  } else if (hex.length === 7) {
+    r = parseInt(hex[1] + hex[2], 16);
+    g = parseInt(hex[3] + hex[4], 16);
+    b = parseInt(hex[5] + hex[6], 16);
+  }
+
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
 // Event Listeners
@@ -217,6 +248,18 @@ document
 document
   .getElementById("prev-ten-button")
   .addEventListener("click", () => onPrevPage(10));
+
+document
+  .getElementById("hachura-blur-checkbox")
+  .addEventListener("input", (event) => {
+    isBlur = event.target.checked;
+  });
+
+document
+  .getElementById("hachura-color-picker")
+  .addEventListener("input", (event) => {
+    selectedColor = event.target.value;
+  });
 
 // Inicialização da página
 constructImageInScrem();
